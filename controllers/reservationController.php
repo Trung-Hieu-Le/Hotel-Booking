@@ -30,7 +30,6 @@ class reservationController {
         }
 
         $total_bed = room::getTotalBeds();
-        var_dump($total_bed);
         if ($no_guess > $total_bed) {
             echo "<script>alert('Xin lỗi, khách sạn hiện không đủ phòng cho " . $no_guess . " khách trong khoảng thời gian bạn chọn. Vui lòng chọn lại hoặc thay đổi số lượng khách.');";
             echo "window.location.href='reservation_modal_1.php?&cin=$cin&cout=$cout';</script>";
