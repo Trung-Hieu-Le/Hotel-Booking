@@ -44,7 +44,7 @@ body {
     flex-direction: column;
 }
 .databox .box h1{
-    font-size: 80px;
+    font-size: 60px;
     font-family: 'Hind Siliguri', sans-serif;
     color: rgb(20, 20, 83);
 }
@@ -66,14 +66,14 @@ body {
 }
 
 .profitchart{
-    width: 660px;
+    width: 805px;
     background-color: #ccdff4;
     padding: 10px;
     border-radius: 10px;
 }
 
 .bookroomchart{
-    width: 330px;
+    width: 380px;
     padding:10px 80px;
     background-color: #ccdff4;
     border-radius: 10px;

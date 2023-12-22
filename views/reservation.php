@@ -1,13 +1,34 @@
 <?php include 'header.php'; ?>
+<?php
+include '../controllers/reservationController.php';
 
+$controller = new reservationController();
+if (isset($_GET['delete'])) {
+    $id = $_GET['delete'];
+    $controller->deleteReservation($id);
+}
+
+$keyword = isset($_REQUEST["keyword"]) ? $_REQUEST["keyword"] : "";
+if (isset($_GET['keyword'])){
+    $result = $controller->findReservation($keyword);
+}
+else {
+    $result = $controller->getAllReservation();
+}
+?>
     <!-- ================================================= -->
 <?php include('sidebar.php')?>
   <div class="main-content">
-    <div class="searchsection">
-        <input type="text" name="search_bar" id="search_bar" placeholder="Nhập từ khóa tìm kiếm..." onkeyup="searchFun()">
-        <a href="reservation_modal_1.php" class="btn btn-primary">
-            Đặt phòng
-        </a>
+  <div class="searchsection">
+    <form action="" method="GET" class="w-75">
+        <center>
+            <input type="text" name="keyword" id="search_bar" placeholder="Nhập từ khóa tìm kiếm..." value="<?php echo $keyword ?>">
+            <button class="btn btn-secondary" type="submit" >Tìm kiếm</button>
+        </center>
+    </form>
+    <a href="reservation_modal_1.php" class="btn btn-primary">
+        Đặt phòng
+    </a>
     </div>
         <!-- Modal -->
         <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
@@ -34,17 +55,8 @@
         </div>
         <div class="room">
 
-        <?php
-        $roombooktablesql = "SELECT reservation.*, GROUP_CONCAT(service.name SEPARATOR ', ') AS listservice
-    FROM reservation
-    -- JOIN user ON reservation.user_id = user.id
-    -- JOIN room_type ON reservation.room_type = room_type.id
-    LEFT JOIN chosen_service ON reservation.id = chosen_service.reservation_id
-    LEFT JOIN service ON chosen_service.service_id = service.id
-    GROUP BY reservation.id ORDER BY reservation.id DESC";
-        $roombookresult = mysqli_query($conn, $roombooktablesql);
-        // $nums = mysqli_num_rows($roombookresult);
-        ?>
+       
+        <!-- TODO: drawio searchPaging() -->
         <table class="table table-bordered" id="table-data">
             <thead>
                 <tr>
@@ -68,7 +80,8 @@
 
             <tbody>
                 <?php
-                while ($res = mysqli_fetch_array($roombookresult)) {
+                    if ($result->num_rows > 0) {
+                    foreach ($result as $res){
                 ?>
                     <tr>
                         <td><?php echo $res['id'] ?></td>
@@ -101,12 +114,17 @@
                             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#paymentModal" onclick="setReservationID(<?php echo $res['id']; ?>)">
                                 Bill
                             </button>
+                            <?php if(isset($_SESSION['staffRole']) && $_SESSION['staffRole']=='Admin'){ ?>
                             <a href="reservationedit.php?id=<?php echo $res['id'] ?>"><button class="btn btn-primary">Sửa</button></a>
                             <a href="reservation.php?delete=<?php echo $res['id'] ?>" onclick="return confirm('Bạn có chắc muốn xóa đơn #<?php echo $res['id']?> không?')"><button class='btn btn-danger'>Xóa</button></a>
+                            <?php } ?>
                         </td>
                     </tr>
                 <?php
                 }
+            } else {
+                echo "<tr><td colspan='12' style='text-align: center;'>Không tìm thấy kết quả phù hợp.</td></tr>";
+            }
                 ?>
             </tbody>
         </table>
@@ -127,13 +145,3 @@
     }
     document.getElementById('paymentForm').addEventListener('submit', redirectToPayment);
 </script>
-
-<?php
-include '../controllers/reservationController.php';
-
-if (isset($_GET['delete'])) {
-    $id = $_GET['delete'];
-    $controller = new reservationController();
-    $controller->delete($id);
-}
-?>

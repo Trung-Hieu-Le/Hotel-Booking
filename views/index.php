@@ -2,7 +2,6 @@
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<!-- TODO: giao diện login -->
 
 <head>
     <meta charset="UTF-8">
@@ -19,34 +18,23 @@
     <!-- loading bar -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/pace-js@latest/pace.min.js"></script> -->
     <link rel="stylesheet" href="../css/flash.css">
-    <title>Sparrow Hotel</title>
+    <title>Khách Sạn Xanh</title>
 </head>
 
 <body>
     <!--  carousel -->
-    <section id="carouselExampleControls" class="carousel slide carousel_section" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img class="carousel-image" src="../image/hotel1.jpg">
-            </div>
-            <div class="carousel-item">
-                <img class="carousel-image" src="../image/hotel2.jpg">
-            </div>
-            <div class="carousel-item">
-                <img class="carousel-image" src="../image/hotel3.jpg">
-            </div>
-            <div class="carousel-item">
-                <img class="carousel-image" src="../image/hotel4.jpg">
-            </div>
+    <div class="w-50 d-none d-xl-block">
+        <div>
+        <img src="../image/index.jpg" style="height:100vh; width:100%; object-fit:cover;">
         </div>
-    </section>
+    </div>
 
     <!-- main section -->
     <section id="auth_section">
 
         <div class="logo">
             <img class="bluebirdlogo" src="../image/bluebirdlogo.png" alt="logo">
-            <p>SPARROW HOTEL</p>
+            <p>KHÁCH SẠN XANH</p>
         </div>
 
         <div class="auth_container">

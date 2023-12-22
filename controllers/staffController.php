@@ -12,7 +12,6 @@ class staffController
             $_SESSION['staffID'] = $userData['id'];
             $_SESSION['staffName'] = $username;
             $_SESSION['staffRole'] = $userData['role'];
-
             echo "<script>
                         swal({
                             title: 'Đăng nhập thành công',
@@ -24,7 +23,7 @@ class staffController
         } else {
             echo "<script>
                         swal({
-                            title: 'Có lỗi xảy ra, xin vui lòng thử lại!',
+                            title: 'Sai tài khoản hoặc mật khẩu',
                             icon: 'error',
                         });
                     </script>";

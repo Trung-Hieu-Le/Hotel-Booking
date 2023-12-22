@@ -21,7 +21,7 @@ while ($row = mysqli_fetch_array($re)) {
 }
 $room_array = array();
 $service_array = array();
-//TODO: Sửa sql
+
 $sql = "SELECT room_id FROM chosen_room WHERE reservation_id = '$id'";
 $result = mysqli_query($conn, $sql);
 if (mysqli_num_rows($result) > 0) {
@@ -37,72 +37,15 @@ if (mysqli_num_rows($result) > 0) {
     }
 }
 
+include '../controllers/reservationController.php';
+$controller = new reservationController();
+
 if (isset($_POST['guestdetailedit'])) {
-    $EditName = $_POST['Name'];
-    $EditPhone = $_POST['Phone'];
-    $EditEmail = $_POST['Email'];
-    $EditAddress = $_POST['Address'];
-    $EditNoofRoom = count($_POST['room']);
-    $EditNoofGuess = $_POST['no_guess'];
-    $EditCin = $_POST['cin'];
-    $EditCout = $_POST['cout'];
-    $EditNote = $_POST['note'];
-    $EditStatus = $_POST['status'];
+    $roomIds = isset($_POST['room']) ?  $_POST['room'] : [];
+    $services = isset($_POST['service']) ? $_POST['service'] : [];
 
-    if (strtotime($EditCout) < strtotime($EditCin)) {
-        echo "<script>alert('Ngày nhận phòng không được trước ngày trả phòng');</script>";
+    $controller->updateReservation($_GET['id'], $_POST['Name'],$_POST['Phone'],$_POST['Email'],$_POST['Address'], count($_POST['room']), $_POST['no_guess'], $_POST['cin'], $_POST['cout'], $_POST['note'], $_POST['status'], $roomIds, $services);
 
-    }
-    else {
-    $sql = "UPDATE reservation SET name = '$EditName', phone = '$EditPhone', email = '$EditEmail', address = '$EditAddress', no_room = '$EditNoofRoom', no_guess = '$EditNoofGuess', check_in = '$EditCin', check_out = '$EditCout', no_day = datediff('$EditCout', '$EditCin')+1, note = '$EditNote', status = '$EditStatus' WHERE id = '$id'";
-    $result = mysqli_query($conn, $sql);
-        
-    if (isset($_POST['room']) && is_array($_POST['room'])) {
-        $sql_delete_room = "UPDATE room JOIN chosen_room ON chosen_room.room_id = room.id
-                            SET status= 1 WHERE reservation_id = '$id'";
-        $result_delete_room = mysqli_query($conn, $sql_delete_room);
-
-        $sql_delete = "DELETE FROM chosen_room WHERE reservation_id = '$id'";
-        $result_delete = mysqli_query($conn, $sql_delete);
-    
-        foreach ($_POST['room'] as $room_id) {
-            $sql = "INSERT INTO chosen_room (reservation_id, room_id) VALUES ('$id', '$room_id')";
-            $result2 = mysqli_query($conn, $sql);
-    
-            $update_status_sql = "UPDATE room
-            JOIN chosen_room ON room.id = chosen_room.room_id
-            JOIN reservation ON chosen_room.reservation_id = reservation.id
-            SET room.status = 
-            CASE 
-                WHEN reservation.status = 0 THEN 2
-                WHEN reservation.status IN (1, 2) THEN 1
-                ELSE room.status
-            END
-            WHERE room.id = '$room_id' AND reservation.id = '$id';";
-            $result3 = mysqli_query($conn, $update_status_sql);
-        }
-    }
-    
-    if (isset($_POST['service']) && is_array($_POST['service'])) {
-        $sql_delete = "DELETE FROM chosen_service WHERE reservation_id = '$id'";
-        $result_delete = mysqli_query($conn, $sql_delete);
-        foreach ($_POST['service'] as $service_id) {
-            $sql = "INSERT INTO chosen_service (reservation_id, service_id) VALUES ('$id', '$service_id')";
-            $result4 = mysqli_query($conn, $sql);
-        } 
-    }
-    if ($result & $result2) {
-        echo "<script>swal({
-            title: 'Đặt phòng thành công',
-            icon: 'success',
-        });
-        </script>";
-        header("Location:reservation.php");
-    } else {
-        echo "<script>alert('Lỗi khi sửa đơn đặt phòng');</script>";
-
-    }
-    }
 }
 ?>
 
@@ -141,7 +84,7 @@ if (isset($_POST['guestdetailedit'])) {
                                     <option value="" disabled>Chọn số hành khách</option>
                                     <?php
                                         for ($i = 1; $i <= 20; $i++) {
-                                            $selected = ($No_guess == $i) ? 'selected' : '';
+                                            $selected = ($no_guess == $i) ? 'selected' : '';
                                             echo "<option value='$i' $selected>$i</option>";
                                         }
                                     ?>
@@ -171,9 +114,8 @@ if (isset($_POST['guestdetailedit'])) {
                                 multiple multiselect-search="true" multiselect-select-all="true">
                                     <!-- <option value="" disabled>Phòng</option> -->
                                     <?php
-                                    // TODO: Sửa cái này
                                     // $roomsql = "SELECT id, name FROM room WHERE status <> 0";
-                                    $roomsql = "SELECT room.id, room.room_name 
+                                    $roomsql = "SELECT room.id, room.room_name, room.room_type, room.no_guess 
                                     FROM room 
                                     WHERE room.status = 1 
                                     OR room.id IN (
@@ -187,7 +129,7 @@ if (isset($_POST['guestdetailedit'])) {
                                     if (mysqli_num_rows($roomresult) > 0) {
                                         while ($row = mysqli_fetch_assoc($roomresult)) {
                                             $selected = in_array($row["id"], $room_array) ? 'selected' : '';
-                                            echo "<option value='" . $row["id"] . "' $selected>" . $row["room_name"] . "</option>";
+                                            echo "<option value='" . $row["id"] . "' $selected>" . $row["room_name"] . " - kiểu: " . $row["room_type"] . " - số giường: " . $row["no_guess"] . "</option>";
                                         }
                                     }
                                     ?>
@@ -197,7 +139,6 @@ if (isset($_POST['guestdetailedit'])) {
                                 <label for="serviceSelect" class="form-label">Dịch vụ:</label>
                                 <select name="service[]" class="select multiselect" id="multiService" style="width:100%;"
                                 multiple multiselect-search="true" multiselect-select-all="true">
-                                    <option value="" disabled>Dịch vụ</option>
                                     <?php
                                     $servicesql = "SELECT id, name FROM service WHERE status = 1";
                                     $serviceresult = mysqli_query($conn, $servicesql);
